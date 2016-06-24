@@ -78,6 +78,11 @@ so action happens after button is let go
 2014-11-10-2014 - William garrido
 -Re-enable device name on startup
 -Add firmware version to display startup
+
+2016-06-23 - Weistek Eng | Jeremy G |
+-added UpdateTime
+--#update time displays time on the energy page, allows you to kepe track of uptime.
+-Compile size 28,306 bytes (98%) only 300 bytes left make them count :)
 **************************************/
 
 #include <Wire.h>
@@ -106,6 +111,8 @@ so action happens after button is let go
 // inspired by the the _BV() macro
 #define setpin(port, pin) (port) |= (1 << (pin)) 
 #define clearpin(port, pin) (port) &= ~(1 << (pin))
+void updateTime(long now);
+
 
 #define DEBUG 0
 
@@ -125,6 +132,7 @@ uint8_t autoscale_size = sizeof(autoscale_limits) / sizeof(uint16_t);
 uint8_t graph_MAX = 0; // Max scale by default
 float autoscale_max_reading = 0;  // The memorized maximum reading over the window
 uint8_t autoscale_countdown = GRAPH_MEMORY;
+uint16_t currentMillies = 0;
 
 //Button
 ClickButton modeBtn(BTN_PIN, HIGH);
@@ -380,7 +388,7 @@ void loop()
         drawScope();
         break;
       case 1:
-        drawEnergy();
+        drawEnergy(now);
         break;
       case 2:
          drawPeakMins();
@@ -508,7 +516,8 @@ void drawScope() {
 
 // Draw current energy values and peak
 // power
-void drawEnergy() {
+void drawEnergy(long now) {
+  updateTime(now);
   display.setPrintPos(28,7);
   display.print(F("Energy Usage"));
   display.drawHLine(0,7,128);
@@ -827,3 +836,29 @@ long readVcc() {
   result = 1125300L / result; // Calculate Vcc (in mV); 1125300 = 1.1*1023*1000
   return result; // Vcc in millivolts
 }
+
+void updateTime(long now)
+{
+  ///update time using millis
+  ///converts millis to 12hr time. used in the energy portion.
+  ///This allows you to keep track of the uptime of the current test.
+  
+  long hours=0;
+  long mins=0;
+  long secs=0;
+  secs = now/1000; //convect milliseconds to seconds
+  mins=secs/60; //convert seconds to minutes
+  hours=mins/60; //convert minutes to hours
+  secs=secs-(mins*60); //subtract the coverted seconds to minutes in order to display 59 secs max 
+  mins=mins-(hours*60); //subtract the coverted minutes to hours in order to display 59 minutes max
+  //hours=hours-(days*24); //subtract the coverted hours to days in order to display 23 hours max
+  //Display results
+  display.setPrintPos(0,50);
+  display.print(F("Run Time: "));
+  display.print(hours);
+  display.print(":");
+  display.print(mins);
+  display.print(":");
+  display.print(secs);
+}
+
