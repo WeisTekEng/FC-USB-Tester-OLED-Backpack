@@ -532,7 +532,7 @@ void drawEnergy(long now) {
   display.print(F("Peak: "));
   display.print(voltageAtPeakPower*currentAtPeakPower/1000);
   display.print("W");
-  display.setPrintPos(0,40);
+  display.setPrintPos(0,41);
   display.print(F("@ "));
   display.print(voltageAtPeakPower);
   display.print(F("V & "));
