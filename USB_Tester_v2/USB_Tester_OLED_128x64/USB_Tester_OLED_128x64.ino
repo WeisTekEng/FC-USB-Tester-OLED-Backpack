@@ -862,7 +862,7 @@ void updateTime(long now, uint8_t page)
   //hours=hours-(days*24); //subtract the coverted hours to days in order to display 23 hours max
   //Display results
   if(!page){display.setPrintPos(timeX,timeY);}
-  if(page == 1){display.setPrintPos(0,50);}
+  if(page){display.setPrintPos(0,50);}
   display.print(F("Run Time: "));
   display.print(hours);
   display.print(":");
