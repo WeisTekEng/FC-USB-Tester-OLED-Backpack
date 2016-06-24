@@ -111,7 +111,6 @@ so action happens after button is let go
 // inspired by the the _BV() macro
 #define setpin(port, pin) (port) |= (1 << (pin)) 
 #define clearpin(port, pin) (port) &= ~(1 << (pin))
-void updateTime(long now);
 
 
 #define DEBUG 0
@@ -132,7 +131,6 @@ uint8_t autoscale_size = sizeof(autoscale_limits) / sizeof(uint16_t);
 uint8_t graph_MAX = 0; // Max scale by default
 float autoscale_max_reading = 0;  // The memorized maximum reading over the window
 uint8_t autoscale_countdown = GRAPH_MEMORY;
-uint16_t currentMillies = 0;
 
 //Button
 ClickButton modeBtn(BTN_PIN, HIGH);
