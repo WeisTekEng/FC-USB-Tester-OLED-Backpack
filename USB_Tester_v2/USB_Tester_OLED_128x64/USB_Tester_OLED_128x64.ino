@@ -115,6 +115,11 @@ so action happens after button is let go
 
 #define DEBUG 0
 
+#define TimeAll  1 //display time on all available screens. (where space allows)
+#define TimeEnergy  1 //Display time only on the energy screen.
+uint8_t timeX = 0;
+uint8_t timeY = 7;
+
 uint16_t ledWarn = 400; //Threshold in mA
 
 // Graph values:
@@ -383,13 +388,13 @@ void loop()
 	do{
     switch (current_screen) {
       case 0:
-        drawScope();
+        drawScope(now);
         break;
       case 1:
         drawEnergy(now);
         break;
       case 2:
-         drawPeakMins();
+         drawPeakMins(now);
          break;
       case 3:
          drawBig((current_mA*loadvoltage)/1000, "W",2);
@@ -404,7 +409,7 @@ void loop()
          drawMsg();
          break;
       default:
-        drawScope();
+        drawScope(now);
     }
     
     drawBottomLine();
@@ -497,8 +502,10 @@ void drawBottomLine() {
 }
 
 // Our various screens:
-void drawScope() {
+void drawScope(long now) {
 
+  if(TimeAll){updateTime(now,0);}
+  
   for (uint8_t i=0; i < GRAPH_MEMORY; i++) {
     uint8_t val = 54 - map(graph_Mem[(i+ring_idx)%GRAPH_MEMORY], 0, autoscale_limits[graph_MAX], 0, 54);
     display.drawPixel(i, val);
@@ -515,7 +522,8 @@ void drawScope() {
 // Draw current energy values and peak
 // power
 void drawEnergy(long now) {
-  updateTime(now);
+  if(TimeEnergy){updateTime(now, 1);}
+  
   display.setPrintPos(28,7);
   display.print(F("Energy Usage"));
   display.drawHLine(0,7,128);
@@ -543,7 +551,9 @@ void drawEnergy(long now) {
 
 
 // Displays peak and minimum values
-void drawPeakMins() {
+void drawPeakMins(long now) {
+  if(TimeAll){updateTime(now, 1);}
+  
   display.setPrintPos(28,7);
   display.print(F("Peak - Mins"));
   display.drawHLine(0,7,128);
@@ -835,7 +845,7 @@ long readVcc() {
   return result; // Vcc in millivolts
 }
 
-void updateTime(long now)
+void updateTime(long now, uint8_t page)
 {
   ///update time using millis
   ///converts millis to 12hr time. used in the energy portion.
@@ -851,7 +861,8 @@ void updateTime(long now)
   mins=mins-(hours*60); //subtract the coverted minutes to hours in order to display 59 minutes max
   //hours=hours-(days*24); //subtract the coverted hours to days in order to display 23 hours max
   //Display results
-  display.setPrintPos(0,50);
+  if(!page){display.setPrintPos(timeX,timeY);}
+  if(page == 1){display.setPrintPos(0,50);}
   display.print(F("Run Time: "));
   display.print(hours);
   display.print(":");
